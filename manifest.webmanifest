@@ -1,11 +1,11 @@
 {
- "name": "Glass Four 四目並べ",
- "short_name": "Glass Four",
+ "name": "4つ並べ",
+ "short_name": "4つ並べ",
  "start_url": "./",
  "display": "standalone",
  "orientation": "landscape",
- "background_color": "#3a2e24",
- "theme_color": "#3a2e24",
+ "background_color": "#f6e3cc",
+ "theme_color": "#f6e3cc",
  "icons": [
   {
    "src": "icon-192.png",
