@@ -18,7 +18,7 @@
    PICTURE: 盤が画面の高さいっぱい。上に▼と浮かぶ次のチップ。
    COLOUR and TYPE: 木の茶と窓の光、みずいろ(#2cc3f2)とピンク(#ff5c9e)。太い丸ゴシック。
    LAYOUT: 左右の上に両プレイヤー（手番が色で光る）、左下「1手もどる」、右下「音」「最初から」、終了後は下中央に「もう一度あそぶ」。 */
-:root{color-scheme:light;--ink:#2b231c;--ca:#0e9fe0;--cb:#f2347c;--card:rgba(255,255,255,.88);--line:rgba(40,25,10,.12)}
+:root{color-scheme:light;--ink:#2b231c;--ca:#12a8f0;--cb:#ff3d8b;--card:rgba(255,255,255,.88);--line:rgba(40,25,10,.12)}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#d6ebf9;color:var(--ink);font:700 16px/1.3 -apple-system,"Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
 #stage{position:fixed;left:0;top:0;width:100vw;height:100vh;transform-origin:0 0;overflow:hidden;--t:max(10px,env(safe-area-inset-top));--r:max(12px,env(safe-area-inset-right));--bt:max(10px,env(safe-area-inset-bottom));--l:max(12px,env(safe-area-inset-left))}
@@ -64,6 +64,11 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 @keyframes shine{from{background-position:100% 0}to{background-position:-200% 0}}
 @keyframes up{from{opacity:0;transform:translateY(10px)}}
 @keyframes grow{from{transform:scaleX(0)}}
+#askOv{background:radial-gradient(60% 70% at 50% 50%,rgba(60,48,40,.25),rgba(12,9,6,.6));animation:fade .4s ease}
+.vic h2.ask{font-size:clamp(28px,7.5vh,46px);letter-spacing:.06em;margin-right:-.06em;background:none;color:#fff;filter:drop-shadow(0 2px 10px rgba(0,0,0,.4));animation:up .5s both}
+.pillw,.pillo{min-height:48px;border-radius:999px;font:inherit;font-size:16px;cursor:pointer;padding:0 26px}
+.pillw{background:#fff;color:var(--ink);border:0}
+.pillo{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
 #pickOv{background:radial-gradient(60% 70% at 50% 50%,rgba(60,48,40,.2),rgba(12,9,6,.5));animation:fade .8s ease;transition:opacity .55s ease}
 #pickOv.leaving{opacity:0;pointer-events:none}
 #toast{position:absolute;left:0;right:0;top:65%;z-index:4;display:flex;justify-content:center;pointer-events:none;opacity:0;transition:opacity .5s}
@@ -71,6 +76,30 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #toast div{font:800 clamp(34px,9vh,60px)/1 "Hiragino Mincho ProN","Shippori Mincho B1","Yu Mincho",serif;letter-spacing:.3em;margin-right:-.3em;color:#fff;text-shadow:0 0 24px var(--c),0 0 6px var(--c),0 3px 10px rgba(0,0,0,.35);transform:scale(.9);transition:transform .6s cubic-bezier(.2,1.4,.4,1)}
 #toast.on div{transform:none}
 
+.corner{position:absolute;display:none;pointer-events:none}
+#pickOv.cmode .corner{display:block}
+.corner i{position:absolute;inset:0}
+.corner::before{content:"";position:absolute;inset:-35%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 70%,transparent) 20%,transparent 68%);opacity:.75}
+#k0{--c:var(--ca)}#k1{--c:var(--cb)}
+.view{display:flex;flex-direction:column;align-items:center;animation:up .5s both}
+.view[hidden]{display:none}
+.cbtn{display:inline-flex;align-items:center;gap:8px;margin-top:clamp(12px,3.5vh,22px);min-height:40px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:14px;cursor:pointer;opacity:.85;animation:up .8s .35s both}
+.cbtn:hover{opacity:1;background:rgba(255,255,255,.14)}
+.cbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cbtn.done{background:#fff;color:var(--ink);border:0;opacity:1;padding:0 30px;min-height:46px;font-size:16px}
+.vic.pick{width:100%}
+#vColor{align-self:stretch}
+.csides{width:min(980px,96%);display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:clamp(8px,2.5vh,18px)}
+.cside{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 14px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)}
+.cside .cn{font-size:16px;color:#fff;letter-spacing:.04em}
+.csides .cbtn.done{margin-top:0;flex:none}
+.sw{display:grid;grid-template-columns:repeat(3,auto);gap:6px}
+.sw button{width:clamp(40px,12vh,58px);aspect-ratio:1;padding:0;border:0;background:none;cursor:pointer;border-radius:50%;position:relative}
+.sw button i{position:absolute;inset:8%;border-radius:50%}
+.sw button::before{content:"";position:absolute;inset:-6%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--s) 75%,transparent) 30%,transparent 70%);opacity:0;transition:opacity .3s}
+.sw button::after{content:"";position:absolute;inset:-1%;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 12px rgba(255,255,255,.6);opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s cubic-bezier(.2,1.5,.4,1)}
+.sw button.cur::before{opacity:1}.sw button.cur::after{opacity:1;transform:none}
+.sw button:disabled{cursor:default}
 .pick h2{font-size:clamp(30px,8vh,52px);letter-spacing:.06em;margin-right:-.06em;animation:up .8s both;background:none;color:#fff;filter:drop-shadow(0 2px 10px rgba(0,0,0,.4))}
 .gems{display:flex;gap:clamp(14px,4vw,34px);align-items:flex-end;margin-top:clamp(14px,4vh,26px);animation:up .8s .2s both}
 .gem{display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;color:#fff;font:inherit;font-size:15px;cursor:pointer;padding:6px 10px;border-radius:18px}
@@ -118,22 +147,36 @@ window.hideSplash=()=>{if(done)return;done=true;setTimeout(()=>{sp.classList.add
     </div>
   </div>
   <div class="ov" id="pickOv" hidden>
+    <div class="corner" id="k0"><i data-chip="p0"></i></div><div class="corner" id="k1"><i data-chip="p1"></i></div>
     <div class="vic pick">
-      <h2>どちらから？</h2>
-      <div class="rule"></div>
-      <div class="gems">
-        <button class="gem spin" id="g0"><i></i>水色</button>
-        <button class="gem" id="gR">✦ おまかせ</button>
-        <button class="gem spin" id="g1"><i></i>ピンク</button>
+      <div class="view" id="vMain">
+        <h2>どちらから？</h2>
+        <div class="rule"></div>
+        <div class="gems">
+          <button class="gem spin" id="g0"><i data-chip="p0"></i><span class="nm0">水色</span></button>
+          <button class="gem" id="gR">✦ おまかせ</button>
+          <button class="gem spin" id="g1"><i data-chip="p1"></i><span class="nm1">ピンク</span></button>
+        </div>
+        <button class="cbtn" id="colorBtn"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="2.2"/><circle cx="15.5" cy="8" r="2.2"/><circle cx="17" cy="14.5" r="2.2"/><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-1 1.1-1.9-.6-1 .1-2.1 1.2-2.1H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/></svg>チップの色</button>
+      </div>
+      <div class="view" id="vColor" hidden>
+        <h2>チップの色</h2>
+        <div class="rule"></div>
+        <div class="csides">
+          <div class="cside"><span class="cn nm0">水色</span><div class="sw" data-p="0"></div></div>
+          <button class="cbtn done" id="colorDone">決定</button>
+          <div class="cside"><span class="cn nm1">ピンク</span><div class="sw" data-p="1"></div></div>
+        </div>
       </div>
     </div>
   </div>
   <div class="ov" id="askOv" hidden>
-    <div class="card" style="--c:var(--ink)">
-      <h2 style="font-size:24px">最初からやり直しますか？</h2>
-      <p>いまの盤はリセットされます</p>
-      <div class="row"><button id="keep">つづける</button><button class="go" id="doRestart">やり直す</button></div>
+    <div class="vic">
+      <h2 class="ask">最初からやり直す？</h2>
+      <div class="rule"></div>
+      <div class="acts"><button id="doRestart" class="pillw">やり直す</button><button id="keep" class="pillo">つづける</button></div>
     </div>
+  </div>
   </div>
 </div>
 
@@ -147,10 +190,12 @@ window.__g4 = true;
 const $ = id => document.getElementById(id);
 const COLS = 7, ROWS = 6, CR = .42, Y0 = .6;
 const PW = COLS + .34, PH = ROWS + .28, ZF = .12, PT = .1;
-const NAMES = ['水色', 'ピンク'], CSS = ['#0e9fe0', '#f2347c'], HEX = [0x0e9fe0, 0xf2347c];
+const PALETTE = [['水色', '#12a8f0'], ['ピンク', '#ff3d8b'], ['レモン', '#f5e31a'], ['みどり', '#22c25a'], ['むらさき', '#8650f0'], ['クリア', '#dfeef6']];
+let colorIdx = [0, 1];
+const NAMES = ['水色', 'ピンク'], CSS = ['#12a8f0', '#ff3d8b'], HEX = [0x12a8f0, 0xff3d8b];
 let choosing = true, grid, moves = [], turn = 0, starter = 0, over = false, muted = false, winChips = [], winLine = null, sel = 3, winner = -1, armed = false, ptrType = 'touch', switching = false, switchT = null;
-try { const s = JSON.parse(localStorage.getItem('glass4f') || 'null'); if (s) muted = !!s.muted; } catch (e) {}
-const save = () => { try { localStorage.setItem('glass4f', JSON.stringify({muted})); } catch (e) {} };
+try { const s = JSON.parse(localStorage.getItem('glass4f') || 'null'); if (s) { muted = !!s.muted; if (Array.isArray(s.colors) && s.colors.length === 2 && s.colors[0] !== s.colors[1] && s.colors.every(i => PALETTE[i])) colorIdx = s.colors; } } catch (e) {}
+const save = () => { try { localStorage.setItem('glass4f', JSON.stringify({muted, colors:colorIdx})); } catch (e) {} };
 
 const stage = $('stage'), canvas = $('c');
 let renderer;
@@ -158,11 +203,11 @@ try { renderer = new THREE.WebGLRenderer({canvas, antialias:true}); }
 catch (e) { window.hideSplash(); stage.insertAdjacentHTML('beforeend', '<div id="err">この端末では3D表示が使えません。</div>'); throw e; }
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
+renderer.toneMappingExposure = 1.16;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(30, 1, .1, 200);
+const camera = new THREE.PerspectiveCamera(19, 1, .1, 300);
 
 /* 背景：朝のカフェ（ぼかした室内と窓の光） */
 function roomCanvas() {
@@ -173,18 +218,18 @@ function roomCanvas() {
   blob(880, 170, 260, 280, 'rgba(255,248,230,A)', 1);
   blob(920, 110, 150, 200, 'rgba(255,255,252,A)', 1);
   blob(690, 60, 260, 110, 'rgba(255,242,215,A)', .6);
-  blob(120, 220, 170, 240, 'rgba(70,52,38,A)', .75);
-  blob(250, 340, 140, 120, 'rgba(130,72,50,A)', .5);
-  blob(210, 150, 70, 90, 'rgba(110,155,95,A)', .65);
+  blob(120, 220, 170, 240, 'rgba(92,80,70,A)', .6);
+  blob(250, 340, 140, 120, 'rgba(140,118,100,A)', .4);
+  blob(210, 150, 90, 110, 'rgba(150,160,148,A)', .35);
   blob(540, 90, 120, 60, 'rgba(235,225,205,A)', .35);
-  blob(990, 340, 120, 160, 'rgba(90,70,55,A)', .5);
+  blob(990, 340, 120, 160, 'rgba(110,98,88,A)', .4);
   return c;
 }
 { const t = new THREE.CanvasTexture(roomCanvas()); t.colorSpace = THREE.SRGBColorSpace; scene.background = t; }
 
 /* 映り込み：明るい窓と天井の光で、アクリルにつやを出す */
-{
-  const pm = new THREE.PMREMGenerator(renderer), es = new THREE.Scene();
+function makeEnv(r) {
+  const pm = new THREE.PMREMGenerator(r), es = new THREE.Scene();
   const t = new THREE.CanvasTexture(roomCanvas()); t.colorSpace = THREE.SRGBColorSpace; t.mapping = THREE.EquirectangularReflectionMapping;
   es.background = t;
   const add = (x, y, z, w, h, k) => { const m = new THREE.MeshBasicMaterial(); m.color.setRGB(k, k * .97, k * .92); const o = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); o.position.set(x, y, z); o.lookAt(0, 0, 0); es.add(o); };
@@ -192,16 +237,21 @@ function roomCanvas() {
   add(-8, 7, 9, 2.4, 6, 6); add(-11, 4, 4, 1.4, 8, 4);
   add(0, 12, 6, 14, 1, 8); add(0, 12, -4, 14, 1.4, 5);
   add(10, 6, -6, 6, 9, 9);
-  scene.environment = pm.fromScene(es, .01).texture; pm.dispose();
+  const tex = pm.fromScene(es, .01).texture; pm.dispose(); return tex;
 }
-scene.add(new THREE.HemisphereLight(0xfff4e6, 0x5a4030, 1.0));
+/* 部屋の光（盤の画面と色選びの画面で同じものを使う） */
+function addLights(sc) {
+  sc.add(new THREE.HemisphereLight(0xfff4e6, 0x5a4030, 1.0));
+  const k = new THREE.DirectionalLight(0xffffff, 1.4); k.position.set(-4, 6, 10); sc.add(k);
+}
+scene.environment = makeEnv(renderer);
+addLights(scene);
 const sun = new THREE.DirectionalLight(0xfff0d8, 3.2);
 sun.position.set(8, 10, -3); sun.target.position.set(0, 2, 0);
 sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, {left:-10, right:10, top:10, bottom:-6, near:1, far:40});
 sun.shadow.bias = -.0004; sun.shadow.normalBias = .02;
 scene.add(sun, sun.target);
-const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(-4, 6, 10); scene.add(key);
 
 /* 木のテーブル */
 {
@@ -237,18 +287,18 @@ const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(-4, 6, 1
 }
 
 /* 透明アクリルの盤（光を屈折させる板） */
-const acrylic = new THREE.MeshPhysicalMaterial({color:0xf6fdff, transmission:1, thickness:.12, ior:1.49, roughness:0, metalness:0, clearcoat:1, clearcoatRoughness:0, specularIntensity:1, envMapIntensity:2.4});
-const acrylicEdge = new THREE.MeshPhysicalMaterial({color:0xe9fbff, transmission:1, thickness:1.2, ior:1.49, roughness:.02, attenuationColor:0xa8e4ee, attenuationDistance:.9, clearcoat:1, specularIntensity:1, envMapIntensity:2.8});
-const ice = new THREE.MeshPhysicalMaterial({color:0xe2f3f8, roughness:.06, clearcoat:1, clearcoatRoughness:.02, emissive:0x8fc6d8, emissiveIntensity:.12, envMapIntensity:2});
+const acrylic = new THREE.MeshPhysicalMaterial({color:0xf8fdff, transparent:true, opacity:.07, roughness:.02, metalness:0, clearcoat:1, clearcoatRoughness:0, specularIntensity:1, envMapIntensity:1.8, depthWrite:false, side:THREE.DoubleSide});
+const acrylicEdge = new THREE.MeshPhysicalMaterial({color:0xeefcff, transmission:1, thickness:.5, ior:1.49, roughness:.02, attenuationColor:0xb8eaf2, attenuationDistance:1.2, clearcoat:1, specularIntensity:1, envMapIntensity:2.6});
+const ice = new THREE.MeshPhysicalMaterial({color:0xf2fcff, transmission:1, thickness:.25, ior:1.49, roughness:.03, attenuationColor:0xc4eef5, attenuationDistance:.8, clearcoat:1, specularIntensity:1, envMapIntensity:2.4});
 const cellPos = (c, r) => new THREE.Vector3(c - (COLS - 1) / 2, Y0 + r, 0);
 {
   const shape = new THREE.Shape();
   shape.moveTo(-PW / 2, 0); shape.lineTo(PW / 2, 0); shape.lineTo(PW / 2, PH); shape.lineTo(-PW / 2, PH); shape.closePath();
   for (let c = 0; c < COLS; c++) for (let r = 0; r < ROWS; r++) { const p = cellPos(c, r), h = new THREE.Path(); h.absarc(p.x, p.y, .4, 0, Math.PI * 2, true); shape.holes.push(h); }
   const geo = new THREE.ExtrudeGeometry(shape, {depth:PT, bevelEnabled:true, bevelThickness:.025, bevelSize:.025, bevelSegments:3, curveSegments:36});
-  const front = new THREE.Mesh(geo, [acrylic, acrylicEdge]); front.position.z = ZF; scene.add(front);
+  const front = new THREE.Mesh(geo, [acrylic, acrylicEdge]); front.position.z = ZF; front.renderOrder = 3; scene.add(front);
   const back = new THREE.Mesh(geo, [acrylic, acrylicEdge]); back.position.z = -ZF - PT; scene.add(back);
-  const divG = new THREE.BoxGeometry(.06, PH - .02, ZF * 2);
+  const divG = new THREE.BoxGeometry(.045, PH - .02, ZF * 2);
   for (let i = 1; i < COLS; i++) { const m = new THREE.Mesh(divG, ice); m.position.set(i - COLS / 2, PH / 2, 0); scene.add(m); }
   const endG = new THREE.BoxGeometry(.14, PH, ZF * 2);
   for (const s of [-1, 1]) { const m = new THREE.Mesh(endG, ice); m.position.set(s * (PW / 2 - .07), PH / 2, 0); scene.add(m); }
@@ -266,8 +316,9 @@ const sqGeo = (() => {
   s.lineTo(-a + r, a); s.quadraticCurveTo(-a, a, -a, a - r); s.lineTo(-a, -a + r); s.quadraticCurveTo(-a, -a, -a + r, -a);
   const g = new THREE.ExtrudeGeometry(s, {depth:.06, bevelEnabled:true, bevelThickness:.015, bevelSize:.015, bevelSegments:2}); g.translate(0, 0, -.03); return g;
 })();
-const chipMat = c => new THREE.MeshPhysicalMaterial({color:c, transmission:.85, thickness:.45, ior:1.5, roughness:.05, metalness:0, attenuationColor:c, attenuationDistance:.1, clearcoat:1, clearcoatRoughness:.02, specularIntensity:1, envMapIntensity:1.6, emissive:c, emissiveIntensity:.16});
-const chipMats = HEX.map(chipMat), winMats = HEX.map(c => { const m = chipMat(c); m.color.lerp(new THREE.Color(0xffffff), .45); m.attenuationColor.lerp(new THREE.Color(0xffffff), .3); m.emissive.lerp(new THREE.Color(0xfff2c0), .35); return m; });
+const CHIP = {roughness:.06, metalness:0, clearcoat:1, clearcoatRoughness:.03, specularIntensity:1, envMapIntensity:1.4, emissiveIntensity:.2, transparent:true, opacity:.9};
+const chipMat = c => new THREE.MeshPhysicalMaterial({...CHIP, color:c, emissive:c, attenuationColor:c});
+const chipMats = HEX.map(chipMat), winMats = HEX.map(c => { const m = chipMat(c); m.color.lerp(new THREE.Color(0xffffff), .12); m.attenuationDistance = .25; return m; });
 function makeChip(p) {
   const g = new THREE.Group(), mat = chipMats[p];
   const body = new THREE.Mesh(chipGeo, mat), sq = new THREE.Mesh(sqGeo, mat);
@@ -339,6 +390,8 @@ function openPick(deferred) {
   if (!deferred) showPickOv();
 }
 function showPickOv() {
+  $('pickOv').classList.remove('cmode');
+  $('vMain').hidden = false; $('vColor').hidden = true;
   const ov = $('pickOv'); ov.classList.remove('leaving'); ov.hidden = true; void ov.offsetWidth; ov.hidden = false;
 }
 function startWith(p) {
@@ -401,7 +454,7 @@ function drop(c) {
       winChips.forEach((ch, i) => setTimeout(() => {
         if (!over) return;
         setMat(ch, winMats[p]); ch.userData.pop = performance.now(); chime(i);
-        const gl = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:new THREE.Color(HEX[p]).lerp(new THREE.Color(0xffffff), .4), transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
+        const gl = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:new THREE.Color(HEX[p]).lerp(new THREE.Color(0xffffff), .12), transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
         gl.scale.setScalar(CR * 3.6); gl.position.z = ZF + PT + .06; gl.renderOrder = 8; ch.add(gl); ch.userData.glow = gl;
         sparkleBurst(ch.position, p, 70);
         if (i === winChips.length - 1) setTimeout(() => { if (!over) return; finale(); winChips.forEach(c2 => sparkleBurst(c2.position, p, 50)); }, 260);
@@ -463,13 +516,13 @@ const glowTex = (() => { const c = document.createElement('canvas'); c.width = c
 const GEM_H = CR * 2;
 const marks = [0, 1].map(p => {
   const g = new THREE.Group(), chip = makeChip(p);
-  const mat = chipMats[p].clone(); mat.transparent = true; setMat(chip, mat);
+  const mat = chipMat(HEX[p]); setMat(chip, mat);
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:HEX[p], transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
   glow.scale.setScalar(CR * 4.4); glow.position.z = -.3; glow.renderOrder = 8;
   g.add(glow, chip); g.userData = {gem:chip, glow, mat, base:1, spin:0}; scene.add(g); return g;
 });
 /* 先攻を知らせる大きな3Dチップ（中央に現れて、先攻側へ飛んでいく） */
-const heroMats = [0, 1].map(p => { const m = chipMats[p].clone(); m.transparent = true; return m; });
+const heroMats = [0, 1].map(p => chipMat(HEX[p]));
 const hero = {chip:makeChip(0), p:0, t0:0, done:true};
 const heroGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffffff, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
 heroGlow.renderOrder = 8; scene.add(heroGlow);
@@ -489,9 +542,9 @@ function stepHero(now) {
   else if (t < 2.15) { const k = (t - 1.55) / .6, e = k * k * (3 - 2 * k); pos.lerp(mk.position, e); sc = big + (mk.userData.base - big) * e; spin = e * Math.PI * 2; op = 1 - Math.max(0, (k - .7) / .3); }
   else { hero.done = true; c.visible = false; heroGlow.material.opacity = 0; sparkleBurst(mk.position, hero.p, 50); return; }
   c.position.copy(pos); c.scale.setScalar(sc); c.rotation.set(-.15, spin, 0);
-  heroMats[hero.p].opacity = op;
+  heroMats[hero.p].opacity = CHIP.opacity * op;
   heroGlow.position.copy(pos).add(new THREE.Vector3(0, 0, -.3)); heroGlow.scale.setScalar(sc * CR * 4.5);
-  heroGlow.material.color.set(HEX[hero.p]); heroGlow.material.opacity = (t < 1.55 ? Math.min(1, t * 3) * .8 : .8 * op);
+  heroGlow.material.color.set(HEX[hero.p]); heroGlow.material.opacity = (t < 1.55 ? Math.min(1, t * 3) * .45 : .45 * op);
 }
 function placeMarks() {
   const v = THREE.MathUtils.degToRad(camera.fov) / 2, px = Math.min(70, SH * .17), py = Math.min(66, SH * .16);
@@ -518,8 +571,8 @@ function animMarks(now, dt) {
     u.gem.rotation.y = u.spin;
     const ga = active ? (over ? .75 + .25 * Math.sin(now / 160) : .55 + .1 * Math.sin(now / 1200)) : 0;
     u.glow.material.opacity += (ga - u.glow.material.opacity) * .12;
-    u.mat.opacity += ((active || choosing ? 1 : .45) - u.mat.opacity) * .1;
-    u.mat.emissiveIntensity = active ? .2 + .06 * Math.sin(now / 900) : .08;
+    u.mat.opacity += ((active || choosing ? CHIP.opacity : .45) - u.mat.opacity) * .1;
+    u.mat.emissiveIntensity = CHIP.emissiveIntensity;
     if (active && !still && Math.random() < (over ? .45 : .02) && sparks.length < MAXS - 5) {
       const a = Math.random() * Math.PI * 2, r = u.base * (.35 + Math.random() * .35);
       sparks.push({x:m.position.x + Math.cos(a) * r, y:m.position.y + Math.sin(a) * r, z:m.position.z + .2, vx:0, vy:.15, vz:0, life:0, max:.7 + Math.random() * .7, size:(.12 + Math.random() * .2) * u.base, tw:Math.random() * 20, c:SPARK_COL[p][Math.random() * 3 | 0]});
@@ -540,7 +593,7 @@ const sMat = new THREE.ShaderMaterial({
   uniforms:{uScale:{value:400}},
   transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
   vertexShader:`attribute vec3 col;attribute float size;attribute float alpha;uniform float uScale;varying vec3 vC;varying float vA;
-    void main(){vC=col;vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=size*uScale/-mv.z;gl_Position=projectionMatrix*mv;}`,
+    void main(){vC=col;vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.);float ps=size*uScale/-mv.z;gl_PointSize=max(ps,2.);if(ps<3.)vA=0.;gl_Position=projectionMatrix*mv;}`,
   fragmentShader:`varying vec3 vC;varying float vA;
     void main(){vec2 p=gl_PointCoord-.5;float d=length(p);
       float core=exp(-d*d*90.);float glow=exp(-d*d*14.)*.35;
@@ -596,7 +649,7 @@ function layout() {
   const v = THREE.MathUtils.degToRad(camera.fov) / 2, h = Math.atan(Math.tan(v) * camera.aspect);
   const halfH = (PH + 1.5 + .62) / 2, halfW = PW / 2 + .4;
   const d = Math.max(halfH / Math.tan(v) / .97, halfW / Math.tan(h) / .7);
-  camera.position.set(0, target.y + d * .05, d); camera.lookAt(target);
+  camera.position.set(0, target.y, d); camera.lookAt(target);
   camBase.copy(camera.position);
   placeMarks();
   if (introK < 1) { const e = 1 - Math.pow(1 - introK, 3); camera.position.copy(camBase).addScaledVector(camOff, 1 - e); camera.lookAt(target); }
@@ -642,6 +695,38 @@ addEventListener('keydown', e => {
 });
 
 const replay = () => openPick();
+/* チップの色 */
+const W = new THREE.Color(0xffffff);
+function setColor(p, i, quiet) {
+  if (!PALETTE[i] || colorIdx[1 - p] === i) return;
+  colorIdx[p] = i;
+  const [nm, css] = PALETTE[i], col = new THREE.Color(css);
+  NAMES[p] = nm; CSS[p] = css; HEX[p] = col.getHex();
+  const tint = m => { m.color.copy(col); m.attenuationColor.copy(col); m.emissive.copy(col); };
+  tint(chipMats[p]); tint(heroMats[p]); tint(marks[p].userData.mat);
+  winMats[p].color.copy(col).lerp(W, .12); winMats[p].attenuationColor.copy(col); winMats[p].emissive.copy(col);
+  marks[p].userData.glow.material.color.copy(col);
+  SPARK_COL[p] = [col.clone().lerp(W, .25), col.clone().lerp(W, .55), col.clone().lerp(W, .8)];
+  document.documentElement.style.setProperty(p ? '--cb' : '--ca', css);
+  document.querySelectorAll('.nm' + p).forEach(e => e.textContent = nm);
+  refreshSwatches(); if (grid) updateUI(); save();
+  if (!quiet && !muted && actx) bar(1175, actx.currentTime, .1);
+  if (!quiet) { const k = $('k' + p); k.classList.add('pop'); clearTimeout(k._t); k._t = setTimeout(() => k.classList.remove('pop'), 380); }
+}
+document.querySelectorAll('.sw').forEach(el => {
+  const p = +el.dataset.p;
+  el.innerHTML = PALETTE.map(([nm, css], i) => `<button aria-label="${nm}" data-i="${i}" style="--s:${css}"><i data-chip="${i}"></i></button>`).join('');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { wakeAudio(); setColor(p, +b.dataset.i); });
+});
+function refreshSwatches() {
+  document.querySelectorAll('.sw').forEach(el => {
+    const p = +el.dataset.p;
+    el.querySelectorAll('button').forEach(b => { const i = +b.dataset.i; b.classList.toggle('cur', colorIdx[p] === i); b.disabled = colorIdx[1 - p] === i; });
+  });
+}
+$('colorBtn').onclick = () => { wakeAudio(); if (rolling) return; $('vMain').hidden = true; $('vColor').hidden = false; $('pickOv').classList.add('cmode'); placeCorners(); if (!muted && actx) bar(880, actx.currentTime, .08); };
+$('colorDone').onclick = () => { $('vColor').hidden = true; $('vMain').hidden = false; $('pickOv').classList.remove('cmode'); if (!muted && actx) { const t = actx.currentTime; bar(1047, t, .14); bar(1319, t + .08, .16); } };
+{ const saved = colorIdx.slice(); colorIdx = [-1, -1]; setColor(0, saved[0], true); setColor(1, saved[1], true); }
 function decide(p) {
   if (rolling) return;
   wakeAudio();
@@ -657,29 +742,34 @@ const pickCanvas = document.createElement('canvas'); pickCanvas.id = 'pickGL'; $
 let pickR = null;
 try { pickR = new THREE.WebGLRenderer({canvas:pickCanvas, antialias:true, alpha:true}); } catch (e) {}
 const pickScene = new THREE.Scene(), pickCam = new THREE.PerspectiveCamera(20, 1, 1, 10000);
-const pickChips = [];
+const pool = [];
+function poolChip(k) {
+  while (pool.length <= k) {
+    const mat = chipMat(0xffffff);
+    const g = new THREE.Group(), body = new THREE.Mesh(chipGeo, mat), sq = new THREE.Mesh(sqGeo, mat);
+    sq.scale.set(1, 1, 1.9); sq.rotation.z = (pool.length * .37) % 1.2;
+    const inner = new THREE.Group(); inner.add(body, sq); inner.rotation.x = -.22; g.add(inner);
+    g.userData = {inner, mat}; pickScene.add(g); pool.push(g);
+  }
+  return pool[k];
+}
 if (pickR) {
   pickR.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   pickR.toneMapping = THREE.ACESFilmicToneMapping;
-  const pm = new THREE.PMREMGenerator(pickR), es = new THREE.Scene();
-  es.add(new THREE.Mesh(new THREE.SphereGeometry(30, 32, 16), new THREE.ShaderMaterial({side:THREE.BackSide,
-    vertexShader:'varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'varying vec3 p;void main(){float h=p.y*.5+.5;gl_FragColor=vec4(mix(vec3(.25,.2,.17),vec3(.95,.9,.85),h),1.);}'})));
-  const add = (x, y, z, w, h, k) => { const m = new THREE.MeshBasicMaterial(); m.color.setRGB(k, k, k * .95); const o = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); o.position.set(x, y, z); o.lookAt(0, 0, 0); es.add(o); };
-  add(8, 6, 8, 3, 9, 9); add(-8, 7, 8, 2, 6, 5); add(0, 12, 4, 12, 1, 7);
-  pickScene.environment = pm.fromScene(es, .02).texture; pm.dispose();
-  pickScene.add(new THREE.HemisphereLight(0xffffff, 0x554433, 1.2));
-  const dl = new THREE.DirectionalLight(0xfff2e0, 2.2); dl.position.set(-3, 5, 8); pickScene.add(dl);
+  pickR.toneMappingExposure = renderer.toneMappingExposure;
+  pickScene.environment = makeEnv(pickR);
+  addLights(pickScene);
+  const sun2 = new THREE.DirectionalLight(0xfff0d8, 3.2); sun2.position.set(8, 10, -3); pickScene.add(sun2);
+}
+function placeCorners() {
+  const px = Math.min(70, SH * .17), py = Math.min(66, SH * .16), D = Math.min(84, SH * .19);
   [0, 1].forEach(p => {
-    const mat = new THREE.MeshPhysicalMaterial({color:HEX[p], roughness:.08, clearcoat:1, clearcoatRoughness:.03, specularIntensity:1, envMapIntensity:1.8, emissive:HEX[p], emissiveIntensity:.22, transparent:true});
-    const g = new THREE.Group(), body = new THREE.Mesh(chipGeo, mat), sq = new THREE.Mesh(sqGeo, mat);
-    sq.scale.set(1, 1, 1.9); sq.rotation.z = p ? .5 : .2;
-    const inner = new THREE.Group(); inner.add(body, sq); inner.rotation.x = -.22; g.add(inner);
-    g.userData = {inner, mat, ang:p * 1.3, target:p * 1.3, hl:false};
-    pickScene.add(g); pickChips.push(g);
+    const sx = p === 0 ? px + (rot ? 20 : 8) : SW - px - 8, el = $('k' + p);
+    el.style.left = (sx - D / 2) + 'px'; el.style.top = (py - D / 2) + 'px'; el.style.width = el.style.height = D + 'px';
   });
 }
 function sizePick() {
+  placeCorners();
   if (!pickR) return;
   pickR.setSize(SW, SH, false);
   pickCam.aspect = SW / SH; pickCam.position.set(0, 0, (SH / 2) / Math.tan(THREE.MathUtils.degToRad(pickCam.fov) / 2));
@@ -687,19 +777,29 @@ function sizePick() {
 }
 function renderPick(dt) {
   if (!pickR || $('pickOv').hidden) return;
-  pickChips.forEach((g, p) => {
-    const btn = $('g' + p), el = btn.querySelector('i'), r = el.getBoundingClientRect(), u = g.userData;
+  const els = [...document.querySelectorAll('#pickOv [data-chip]')].filter(e => e.offsetParent !== null);
+  const tmp = new THREE.Color();
+  els.forEach((el, k) => {
+    const g = poolChip(k), u = g.userData, btn = el.closest('button') || el.parentElement, r = el.getBoundingClientRect();
+    const d = el.dataset.chip, ci = d[0] === 'p' ? colorIdx[+d[1]] : +d;
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2, q = rot ? {x:cy, y:innerWidth - cx} : {x:cx, y:cy};
-    g.position.set(q.x - SW / 2, SH / 2 - q.y, 0);
-    g.scale.setScalar(el.offsetWidth / (CR * 2) * .98);
-    const hl = btn.classList.contains('hl');
-    if (hl !== u.hl) { u.hl = hl; u.target += Math.PI; }
-    if (btn.classList.contains('spin') && !still) u.target += dt * .6;
-    u.ang += (u.target - u.ang) * Math.min(1, dt * 9);
-    u.inner.rotation.y = u.ang;
-    u.mat.opacity += ((btn.classList.contains('dim') ? .3 : 1) - u.mat.opacity) * .15;
-    u.mat.emissiveIntensity = hl ? .45 : .22;
+    const a0 = d[0] === 'p' ? 0 : (k * 1.7) % 6.28, st = el._st || (el._st = {ang:a0, target:a0, hl:false});
+    g.visible = true; g.position.set(q.x - SW / 2, SH / 2 - q.y, 0);
+    const isSw = d[0] !== 'p', curNow = btn.classList.contains('cur');
+    st.sc = st.sc ?? 1; st.sc += ((isSw ? (curNow ? .92 : .74) : .98) - st.sc) * Math.min(1, dt * 10);
+    g.scale.setScalar(el.offsetWidth / (CR * 2) * st.sc);
+    tmp.set(PALETTE[ci][1]); u.mat.color.copy(tmp); u.mat.emissive.copy(tmp);
+    const cur = btn.classList.contains('cur'), hl = btn.classList.contains('hl') || btn.classList.contains('pop');
+    if (hl !== st.hl) { st.hl = hl; st.target += Math.PI; }
+    if (btn.classList.contains('spin') || cur) { if (!still) st.target += dt * (cur ? .9 : .6); }
+    else if (!hl) { const off = d[0] === 'p' ? 0 : .5, k2 = Math.round((st.target - off) / (Math.PI * (off ? 1 : 2))) * Math.PI * (off ? 1 : 2) + off; st.target += (k2 - st.target) * .1; }
+    st.ang += (st.target - st.ang) * Math.min(1, dt * 9);
+    u.inner.rotation.y = st.ang;
+    const dim = btn.classList.contains('dim') || btn.disabled;
+    u.mat.opacity += ((btn.disabled ? .15 : dim ? .22 : isSw && !cur ? .6 : CHIP.opacity) - u.mat.opacity) * .2;
+    u.mat.emissiveIntensity = hl ? .4 : CHIP.emissiveIntensity;
   });
+  pool.slice(els.length).forEach(g => g.visible = false);
   pickR.render(pickScene, pickCam);
 }
 $('gR').onclick = () => { wakeAudio(); roll(); };
@@ -722,8 +822,8 @@ function loop(now) {
   }
   const pulse = .5 + .5 * Math.sin(now / 200);
   const calm = .5 + .5 * Math.sin(now / 520);
-  winMats.forEach(m => m.emissiveIntensity = .55 + calm * .75);
-  winChips.forEach(ch => { const g = ch.userData.glow; if (g) g.material.opacity += ((.32 + calm * .28) - g.material.opacity) * .08; });
+  winMats.forEach(m => m.emissiveIntensity = .45 + calm * .45);
+  winChips.forEach(ch => { const g = ch.userData.glow; if (g) g.material.opacity += ((.38 + calm * .3) - g.material.opacity) * .08; });
   winChips.forEach(ch => { const t0 = ch.userData.pop; if (!t0) return; const t = (now - t0) / 1000; ch.scale.setScalar(1 + Math.max(0, .35 * Math.exp(-t * 6) * Math.cos(t * 18)) + calm * .04); });
   if (winLine) { const t = Math.min(1, (now - winLine.userData.t0) / 350); winLine.scale.set(1, t, 1); winLine.userData.mats[0].opacity = .7 + pulse * .3; winLine.userData.mats[1].opacity = .12 + pulse * .15; }
   if (over && winner >= 0 && winChips.length && winChips[winChips.length - 1].userData.pop) { drift(winner); if (Math.random() < .6) drift(winner); }
