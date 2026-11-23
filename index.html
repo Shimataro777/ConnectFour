@@ -756,35 +756,61 @@ addEventListener('keydown', e => {
 
 function replay() { if (online) { $('askOv').hidden = true; $('winOv').hidden = true; if (isHost) newRound(); else { send({t:'again'}); notice('相手を待っています'); } } else openPick(); }
 
-/* ===== オンライン対戦：4桁のコードで端末どうしを直接つなぐ ===== */
-let online = false, isHost = false, me = 0, peer = null, conn = null;
+/* ===== オンライン対戦：4桁のコードで部屋に入る（中継サーバー経由なので、どの回線でもすぐつながる） ===== */
+let online = false, isHost = false, me = 0;
 const views = ['vMain', 'vColor', 'vOnline', 'vHost', 'vJoin'];
 const showView = v => views.forEach(id => $(id).hidden = id !== v);
 let noticeT = null;
 function notice(msg, ms) { const n = $('notice'); n.textContent = msg; n.classList.add('on'); clearTimeout(noticeT); noticeT = setTimeout(() => n.classList.remove('on'), ms || 2200); }
-function loadPeer() {
+const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+const TOP = 'glass4four/v1/', mySid = Math.random().toString(36).slice(2, 10);
+let cli = null, room = null, peerSid = null, lastSeen = 0, hbT = null, netGen = 0, joinWait = null;
+let mqttP = null;
+function loadMqtt() {
+  if (window.mqtt) return Promise.resolve();
+  return mqttP || (mqttP = new Promise((ok, ng) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';
+    sc.onload = () => window.mqtt ? ok() : ng(); sc.onerror = () => { mqttP = null; ng(); }; document.head.appendChild(sc);
+  }));
+}
+const outTopic = () => TOP + room + '/' + (isHost ? 'g' : 'h');
+const inTopic = () => TOP + room + '/' + (isHost ? 'h' : 'g');
+function connectBroker(i) {
   return new Promise((ok, ng) => {
-    if (window.Peer) return ok();
-    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
-    sc.onload = () => window.Peer ? ok() : ng(); sc.onerror = ng; document.head.appendChild(sc);
+    let c;
+    try {
+      c = mqtt.connect(BROKERS[i], {clientId:'g4_' + mySid + '_' + Math.random().toString(36).slice(2, 6), clean:true, connectTimeout:4000, reconnectPeriod:0, keepalive:15,
+        will:{topic:outTopic(), payload:JSON.stringify({t:'bye', from:mySid}), qos:0, retain:false}});
+    } catch (e) { return ng(); }
+    const t = setTimeout(() => { try { c.end(true); } catch (e) {} ng(); }, 4500);
+    c.on('connect', () => { clearTimeout(t); ok(c); });
+    c.on('error', () => { clearTimeout(t); try { c.end(true); } catch (e) {} ng(); });
   });
 }
-function send(m) { try { if (conn && conn.open) conn.send(m); } catch (e) {} }
-function closeNet() { try { conn && conn.close(); } catch (e) {} try { peer && peer.destroy(); } catch (e) {} conn = null; peer = null; }
+function attach(c) {
+  cli = c;
+  c.on('message', (topic, buf) => { let m; try { m = JSON.parse(buf.toString()); } catch (e) { return; } if (!m || m.from === mySid) return; if (peerSid && m.from !== peerSid && m.t !== 'hello') return; lastSeen = Date.now(); onData(m); });
+  c.on('close', () => { if (online && cli === c) leaveOnline('相手との接続が切れました'); });
+  return new Promise(res => { c.subscribe(inTopic(), {qos:1}, () => res()); setTimeout(res, 1500); });
+}
+function send(m) { try { if (cli && room) cli.publish(outTopic(), JSON.stringify({...m, from:mySid}), {qos:1}); } catch (e) {} }
+function closeNet() {
+  netGen++; clearInterval(hbT); hbT = null; joinWait = null;
+  if (cli) { try { send({t:'bye'}); } catch (e) {} const c = cli; cli = null; setTimeout(() => { try { c.end(true); } catch (e) {} }, 150); }
+  room = null; peerSid = null;
+}
 function leaveOnline(msg) {
   const was = online; online = false; isHost = false; document.body.classList.remove('online'); closeNet();
   if (msg) notice(msg, 3000);
   if (was) openPick();
 }
-function wire(c) {
-  conn = c;
-  c.on('data', onData);
-  c.on('close', () => { if (online) leaveOnline('相手との接続が切れました'); });
-  c.on('error', () => { if (online) leaveOnline('相手との接続が切れました'); });
+function startHeartbeat() {
+  clearInterval(hbT); lastSeen = Date.now();
+  hbT = setInterval(() => { send({t:'ping'}); if (online && Date.now() - lastSeen > 10000) leaveOnline('相手との接続が切れました'); }, 2500);
 }
 function beginOnline(host) {
   online = true; isHost = host; me = host ? 0 : 1;
-  document.body.classList.add('online'); placeYou();
+  document.body.classList.add('online'); placeYou(); startHeartbeat();
   if (!muted && actx) { const t = actx.currentTime; bar(1047, t, .18); bar(1568, t + .1, .2); }
 }
 function newRound() {
@@ -793,9 +819,16 @@ function newRound() {
   startWith(p);
 }
 function onData(m) {
-  if (!m || typeof m !== 'object') return;
-  if (m.t === 'hello' && isHost) { beginOnline(true); newRound(); }
+  if (typeof m !== 'object') return;
+  if (m.t === 'hello' && isHost) {
+    if (peerSid === m.from) return;
+    if (peerSid && m.from !== peerSid) { cli.publish(TOP + room + '/g', JSON.stringify({t:'busy', to:m.from, from:mySid}), {qos:1}); return; }
+    peerSid = m.from; status('hostSt', 'つながりました', 'ok'); beginOnline(true); newRound();
+  }
+  else if (m.t === 'busy' && !isHost && m.to === mySid) { if (joinWait) joinWait('busy'); }
   else if (m.t === 'start' && !isHost && (m.p === 0 || m.p === 1)) {
+    if (!peerSid) peerSid = m.from;
+    if (joinWait) joinWait('ok');
     if (!online) beginOnline(false);
     if (Array.isArray(m.colors) && m.colors.length === 2 && m.colors[0] !== m.colors[1] && m.colors.every(i => PALETTE[i])) { colorIdx = [-1, -1]; setColor(0, m.colors[0], true); setColor(1, m.colors[1], true); }
     $('winOv').hidden = true; $('askOv').hidden = true;
@@ -806,35 +839,42 @@ function onData(m) {
     tryDrop();
   }
   else if (m.t === 'again' && isHost) newRound();
+  else if (m.t === 'bye' && online) leaveOnline('相手が退出しました');
 }
 function status(id, msg, kind) { const el = $(id); el.className = 'ost' + (kind ? ' ' + kind : ''); el.querySelector('span').textContent = msg; }
 function showDigits(id, str) { $(id).querySelectorAll('span').forEach((sp, i) => { sp.textContent = str[i] || ''; sp.classList.toggle('cur', id === 'joinDigits' && i === Math.min(str.length, 3)); }); }
 async function host() {
-  showView('vHost'); showDigits('hostCode', ''); status('hostSt', '準備しています', 'wait');
-  try { await loadPeer(); } catch (e) { status('hostSt', '通信の準備ができませんでした', 'ng'); return; }
-  const tryId = n => {
-    const code = String(Math.floor(1000 + Math.random() * 9000));
-    peer = new Peer('glass4four-' + code);
-    peer.on('open', () => { showDigits('hostCode', code); status('hostSt', '相手の参加を待っています', 'wait'); });
-    peer.on('connection', c => { if (conn) { c.close(); return; } status('hostSt', 'つながりました', 'ok'); c.on('open', () => wire(c)); });
-    peer.on('error', e => { if (e && e.type === 'unavailable-id' && n < 5) { peer.destroy(); tryId(n + 1); } else if (!online) status('hostSt', '通信できませんでした', 'ng'); });
-  };
-  tryId(0);
+  closeNet(); const gen = netGen;
+  isHost = true; room = String(Math.floor(1000 + Math.random() * 9000));
+  showView('vHost'); showDigits('hostCode', room); status('hostSt', '準備しています', 'wait');
+  try { await loadMqtt(); } catch (e) { status('hostSt', '通信の準備ができませんでした', 'ng'); return; }
+  for (let i = 0; i < BROKERS.length; i++) {
+    try { const c = await connectBroker(i); if (gen !== netGen) { c.end(true); return; } await attach(c); status('hostSt', '相手の参加を待っています', 'wait'); return; } catch (e) {}
+  }
+  if (gen === netGen) status('hostSt', '通信できませんでした', 'ng');
 }
 async function join() {
   const code = ($('codeIn').value || '').replace(/[^0-9]/g, '');
   if (code.length !== 4) { status('joinSt', '4桁の数字を入れてください'); return; }
+  closeNet(); const gen = netGen;
+  isHost = false; room = code;
   status('joinSt', 'つないでいます', 'wait'); $('codeIn').blur();
-  try { await loadPeer(); } catch (e) { status('joinSt', '通信の準備ができませんでした', 'ng'); return; }
-  closeNet();
-  peer = new Peer();
-  const fail = msg => { status('joinSt', msg, 'ng'); closeNet(); };
-  const to = setTimeout(() => { if (!online) fail('つながりませんでした'); }, 12000);
-  peer.on('open', () => {
-    const c = peer.connect('glass4four-' + code, {reliable:true});
-    c.on('open', () => { clearTimeout(to); wire(c); status('joinSt', 'つながりました', 'ok'); send({t:'hello'}); });
-  });
-  peer.on('error', e => { clearTimeout(to); if (!online) fail(e && e.type === 'peer-unavailable' ? 'その部屋は見つかりませんでした' : 'つながりませんでした'); });
+  try { await loadMqtt(); } catch (e) { status('joinSt', '通信の準備ができませんでした', 'ng'); return; }
+  let reached = false;
+  for (let i = 0; i < BROKERS.length; i++) {
+    let c;
+    try { c = await connectBroker(i); } catch (e) { continue; }
+    if (gen !== netGen) { c.end(true); return; }
+    reached = true; await attach(c);
+    const r = await new Promise(res => { let done = false; joinWait = v => { if (!done) { done = true; res(v); } }; send({t:'hello'}); setTimeout(() => { if (!done) send({t:'hello'}); }, 1200); setTimeout(() => joinWait && joinWait('none'), 3200); });
+    joinWait = null;
+    if (gen !== netGen) return;
+    if (r === 'ok') { status('joinSt', 'つながりました', 'ok'); return; }
+    if (r === 'busy') { status('joinSt', 'その部屋はもう対戦中です', 'ng'); closeNet(); return; }
+    const old = cli; cli = null; try { old.end(true); } catch (e) {}
+    room = code;
+  }
+  status('joinSt', reached ? 'その部屋は見つかりませんでした' : '通信できませんでした', 'ng'); closeNet();
 }
 function placeYou() {
   const px = Math.min(70, SH * .17), py = Math.min(66, SH * .16), D = Math.min(84, SH * .19);
@@ -1009,7 +1049,7 @@ function loop(now) {
   tris.forEach((t, c) => { t.position.y = PH + .36 + (armed && c === sel && !still ? Math.sin(now / 250) * .06 : 0); if (t.userData.target) t.material.color.lerp(t.userData.target, Math.min(1, dt * 6)); });
   renderer.render(scene, camera);
   renderPick(dt);
-  if (!loop.shown) { loop.shown = true; window.hideSplash(); }
+  if (!loop.shown) { loop.shown = true; window.hideSplash(); setTimeout(() => loadMqtt().catch(() => {}), 3500); }
   requestAnimationFrame(loop);
 }
 layout(); openPick(true);
