@@ -148,7 +148,7 @@ const $ = id => document.getElementById(id);
 const COLS = 7, ROWS = 6, CR = .42, Y0 = .6;
 const PW = COLS + .34, PH = ROWS + .28, ZF = .12, PT = .1;
 const NAMES = ['水色', 'ピンク'], CSS = ['#0e9fe0', '#f2347c'], HEX = [0x0e9fe0, 0xf2347c];
-let choosing = true, grid, moves = [], turn = 0, starter = 0, over = false, muted = false, winChips = [], winLine = null, sel = 3, winner = -1, armed = false, ptrType = 'touch';
+let choosing = true, grid, moves = [], turn = 0, starter = 0, over = false, muted = false, winChips = [], winLine = null, sel = 3, winner = -1, armed = false, ptrType = 'touch', switching = false, switchT = null;
 try { const s = JSON.parse(localStorage.getItem('glass4f') || 'null'); if (s) muted = !!s.muted; } catch (e) {}
 const save = () => { try { localStorage.setItem('glass4f', JSON.stringify({muted})); } catch (e) {} };
 
@@ -328,7 +328,7 @@ function newGame() {
   clearTimeout(pending);
   grid = Array.from({length:COLS}, () => new Array(ROWS).fill(-1));
   while (chips.children.length) chips.remove(chips.children[0]);
-  moves = []; anims.length = 0; over = false; winChips = []; sel = 3; winner = -1; armed = false; sparks.length = 0;
+  moves = []; anims.length = 0; over = false; winChips = []; sel = 3; winner = -1; armed = false; sparks.length = 0; switching = false; clearTimeout(switchT);
   if (winLine) { scene.remove(winLine); winLine = null; }
   $('winOv').hidden = true; $('askOv').hidden = true;
   turn = starter; updateUI();
@@ -383,7 +383,7 @@ function roll() {
 }
 
 function drop(c) {
-  if (over || c < 0 || c >= COLS) return;
+  if (over || switching || c < 0 || c >= COLS) return;
   const r = heightOf(c); if (r < 0) return;
   armed = false;
   grid[c][r] = turn;
@@ -410,7 +410,10 @@ function drop(c) {
     }, dur + 100);
   } else if (moves.length === COLS * ROWS) {
     over = true; pending = setTimeout(() => showWin(-1), dur + 300);
-  } else turn ^= 1;
+  } else {
+    switching = true;
+    switchT = setTimeout(() => { switching = false; turn ^= 1; updateUI(); }, dur + 220);
+  }
   updateUI();
 }
 
@@ -446,7 +449,7 @@ function updateUI() {
   if (sel >= 0 && heightOf(sel) < 0) { const cand = [...Array(COLS).keys()].filter(c => heightOf(c) >= 0).sort((a, b) => Math.abs(a - sel) - Math.abs(b - sel)); sel = cand.length ? cand[0] : -1; }
   tris.forEach((t, c) => {
     t.visible = !over && !choosing && heightOf(c) >= 0;
-    t.material.color.set(armed && c === sel ? '#ffffff' : CSS[turn]);
+    t.userData.target = new THREE.Color(armed && c === sel ? '#ffffff' : CSS[turn]);
     t.scale.setScalar(armed && c === sel ? 1.35 : 1);
   });
   ghosts.forEach(g => { if (sel >= 0) g.position.x = cellPos(sel, 0).x; });
@@ -616,6 +619,7 @@ function colAt(e) {
 canvas.addEventListener('pointerdown', e => {
   wakeAudio();
   if (choosing) return;
+  if (switching && !over) return;
   if (over) { if (winChips.length || winner < 0) { if ($('winOv').hidden && !pending) showWin(winner); } return; }
   ptrType = e.pointerType;
   const c = colAt(e);
@@ -624,14 +628,14 @@ canvas.addEventListener('pointerdown', e => {
   else { sel = c; armed = true; tick(); updateUI(); }
 });
 canvas.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse' || over || choosing) return;
+  if (e.pointerType !== 'mouse' || over || choosing || switching) return;
   ptrType = 'mouse';
   const c = colAt(e); if (c >= 0 && (c !== sel || !armed) && heightOf(c) >= 0) { sel = c; armed = true; updateUI(); }
 });
 function tick() { if (!muted && actx) bar(784, actx.currentTime, .07); }
 document.addEventListener('gesturestart', e => e.preventDefault());
 addEventListener('keydown', e => {
-  if (over || choosing) return;
+  if (over || choosing || switching) return;
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { const d = e.key === 'ArrowLeft' ? -1 : 1; for (let c = sel + d; c >= 0 && c < COLS; c += d) if (heightOf(c) >= 0) { sel = c; break; } armed = true; updateUI(); }
   else if (e.key === 'Enter' || e.key === 'ArrowDown') { wakeAudio(); drop(sel); }
   else { const n = +e.key; if (n >= 1 && n <= 7) { wakeAudio(); sel = n - 1; drop(n - 1); } }
@@ -728,7 +732,7 @@ function loop(now) {
   animMarks(now, dt);
   stepHero(now);
   stepSparks(dt, now);
-  const gShow = !over && !choosing && sel >= 0 && anims.length === 0;
+  const gShow = !over && !choosing && !switching && sel >= 0 && anims.length === 0;
   ghosts.forEach((g, p) => {
     const want = gShow && p === turn, u = g.userData;
     u.k = Math.max(0, Math.min(1, (u.k || 0) + (want ? dt * 4 : -dt * 8)));
@@ -747,7 +751,7 @@ function loop(now) {
     r.scale.setScalar(1 + k * .7);
     r.material.opacity = (1 - k) * (k < .12 ? k / .12 : 1) * .75;
   });
-  tris.forEach((t, c) => { t.position.y = PH + .36 + (armed && c === sel && !still ? Math.sin(now / 250) * .06 : 0); });
+  tris.forEach((t, c) => { t.position.y = PH + .36 + (armed && c === sel && !still ? Math.sin(now / 250) * .06 : 0); if (t.userData.target) t.material.color.lerp(t.userData.target, Math.min(1, dt * 6)); });
   renderer.render(scene, camera);
   renderPick(dt);
   if (!loop.shown) { loop.shown = true; window.hideSplash(); }
