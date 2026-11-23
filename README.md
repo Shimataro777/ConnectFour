@@ -14,7 +14,11 @@ iPhone / iPad / パソコンのブラウザで動きます。
 3. 数分後に `https://<ユーザー名>.github.io/<リポジトリ名>/` で遊べます
 
 ## アップロードするファイル（すべて同じ階層）
-index.html / manifest.webmanifest / apple-touch-icon.png / icon-192.png / icon-512.png / favicon.png / .nojekyll / README.md
+index.html / sw.js / manifest.webmanifest / apple-touch-icon.png / icon-192.png / icon-512.png / favicon.png / .nojekyll / README.md
+
+## オフラインで遊ぶ
+ネットにつながった状態で一度起動すると、必要なものが端末に保存され、以後は機内モードなどでも1台での対戦ができます（オンライン対戦は除く）。
+更新したときは `sw.js` の1行目付近にある `CACHE` の名前（バージョン）も変えてください。
 
 iPhone / iPad では Safari で開き、共有ボタン →「ホーム画面に追加」でアイコンから起動できます。
 
