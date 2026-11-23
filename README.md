@@ -17,3 +17,7 @@ iPhone / iPad / パソコンのブラウザで動きます。
 index.html / manifest.webmanifest / apple-touch-icon.png / icon-192.png / icon-512.png / favicon.png / .nojekyll / README.md
 
 iPhone / iPad では Safari で開き、共有ボタン →「ホーム画面に追加」でアイコンから起動できます。
+
+## オンライン対戦
+「どちらから？」の画面で「オンライン対戦」→ 片方が「部屋をつくる」、もう片方が表示された4桁のコードを「コードを入れる」で入力すると始まります。
+GitHub Pages で公開したページで使えます（端末どうしを直接つなぐため、通信環境によってはつながらないことがあります）。

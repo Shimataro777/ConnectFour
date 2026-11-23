@@ -81,6 +81,36 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .corner i{position:absolute;inset:0}
 .corner::before{content:"";position:absolute;inset:-35%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 70%,transparent) 20%,transparent 68%);opacity:.75}
 #k0{--c:var(--ca)}#k1{--c:var(--cb)}
+.links{display:flex;align-items:center;gap:14px;margin-top:clamp(12px,3.5vh,22px);animation:up .8s .35s both}
+.lnk{display:inline-flex;align-items:center;gap:6px;padding:8px 4px;background:none;border:0;color:rgba(255,255,255,.78);font:inherit;font-size:13px;letter-spacing:.04em;cursor:pointer;transition:color .2s}
+.lnk:hover,.lnk:focus-visible{color:#fff}
+.lnk svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.45)}
+.lnk.back{margin-top:clamp(8px,2.5vh,16px);font-size:13px}
+.vic h2.sm{font-size:clamp(24px,6.5vh,38px)}
+.tiles{display:flex;gap:14px;margin-top:clamp(12px,3.5vh,22px)}
+.tile{width:clamp(150px,22vw,190px);padding:16px 14px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.28);background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.04));color:#fff;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .2s,background .2s,border-color .2s}
+.tile:hover{background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(255,255,255,.08));border-color:rgba(255,255,255,.5)}
+.tile:active{transform:scale(.97)}
+.tile svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.tile b{font-size:15px;font-weight:700;letter-spacing:.04em}
+.vic .tile small{font:500 11.5px/1.3 -apple-system,"Hiragino Sans",system-ui,sans-serif;letter-spacing:.02em;margin:0;opacity:.65;animation:none}
+.digits{position:relative;display:flex;gap:clamp(8px,1.6vw,14px);margin-top:clamp(12px,3.5vh,22px)}
+.digits span{width:clamp(46px,12vh,66px);aspect-ratio:.8;display:grid;place-items:center;border-radius:16px;background:linear-gradient(170deg,rgba(255,255,255,.18),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.3);font:800 clamp(30px,8.5vh,46px)/1 "Hiragino Mincho ProN","Shippori Mincho B1",serif;color:#fff;font-variant-numeric:tabular-nums;transition:border-color .2s,background .2s}
+.digits.in{cursor:text}
+.digits.in span.cur{border-color:#fff;background:linear-gradient(170deg,rgba(255,255,255,.26),rgba(255,255,255,.08))}
+.digits.in span.cur:empty::after{content:"";width:2px;height:40%;background:#fff;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.digits input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;color:transparent;background:transparent;caret-color:transparent}
+.ost{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:12.5px;letter-spacing:.04em;color:rgba(255,255,255,.75);min-height:1.4em}
+.pulse{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);flex:none}
+.ost.wait .pulse{animation:pulse 1.2s ease-in-out infinite}
+.ost.ok .pulse{background:#7ee0a0}.ost.ng .pulse{background:#ff8a8a}
+@keyframes pulse{50%{transform:scale(1.8);opacity:.35}}
+#youTag{position:absolute;z-index:3;transform:translateX(-50%);padding:3px 12px;border-radius:999px;background:rgba(255,255,255,.9);color:var(--ink);font-size:13px;pointer-events:none;display:none;box-shadow:0 4px 12px -6px rgba(0,0,0,.4)}
+body.online #youTag{display:block}
+#notice{position:absolute;left:50%;top:18%;z-index:7;transform:translateX(-50%);padding:10px 20px;border-radius:999px;background:rgba(20,14,8,.75);color:#fff;font-size:15px;pointer-events:none;opacity:0;transition:opacity .4s;white-space:nowrap}
+#notice.on{opacity:1}
 .view{display:flex;flex-direction:column;align-items:center;animation:up .5s both}
 .view[hidden]{display:none}
 .cbtn{display:inline-flex;align-items:center;gap:8px;margin-top:clamp(12px,3.5vh,22px);min-height:40px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:14px;cursor:pointer;opacity:.85;animation:up .8s .35s both}
@@ -136,6 +166,8 @@ window.hideSplash=()=>{if(done)return;done=true;setTimeout(()=>{sp.classList.add
 <div id="stage">
   <canvas id="c" aria-label="四目並べの盤"></canvas>
   <div class="edge" id="e0"></div><div class="edge" id="e1"></div>
+  <div id="youTag">あなた</div>
+  <div id="notice"></div>
   <div id="toast"><div>先攻</div></div>
   <button class="ico" id="snd" aria-label="音のオン・オフ"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/><path id="mute" d="m16 9 6 6m0-6-6 6" style="display:none"/></svg></button>
   <button class="ico" id="restart" aria-label="最初から"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
@@ -159,7 +191,31 @@ window.hideSplash=()=>{if(done)return;done=true;setTimeout(()=>{sp.classList.add
           <button class="gem" id="gR">✦ おまかせ</button>
           <button class="gem spin" id="g1"><i data-chip="p1"></i><span class="nm1">ピンク</span></button>
         </div>
-        <button class="cbtn" id="colorBtn"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="2.2"/><circle cx="15.5" cy="8" r="2.2"/><circle cx="17" cy="14.5" r="2.2"/><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-1 1.1-1.9-.6-1 .1-2.1 1.2-2.1H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/></svg>チップの色</button>
+        <div class="links"><button class="lnk" id="onlineBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>オンライン</button><i class="sep"></i><button class="lnk" id="colorBtn"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="2.2"/><circle cx="15.5" cy="8" r="2.2"/><circle cx="17" cy="14.5" r="2.2"/><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-1 1.1-1.9-.6-1 .1-2.1 1.2-2.1H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/></svg>チップの色</button></div>
+      </div>
+      <div class="view" id="vOnline" hidden>
+        <h2 class="sm">オンライン対戦</h2>
+        <div class="rule"></div>
+        <div class="tiles">
+          <button class="tile" id="hostBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b>部屋をつくる</b><small>コードを相手に伝える</small></button>
+          <button class="tile" id="joinBtn"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="2.5"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg><b>コードで参加</b><small>相手のコードを入力</small></button>
+        </div>
+        <button class="lnk back" id="onBack">もどる</button>
+      </div>
+      <div class="view" id="vHost" hidden>
+        <h2 class="sm">相手に伝えるコード</h2>
+        <div class="rule"></div>
+        <div class="digits" id="hostCode"><span></span><span></span><span></span><span></span></div>
+        <p class="ost" id="hostSt"><i class="pulse"></i><span>準備しています</span></p>
+        <button class="lnk back" id="hostBack">やめる</button>
+      </div>
+      <div class="view" id="vJoin" hidden>
+        <h2 class="sm">コードを入力</h2>
+        <div class="rule"></div>
+        <label class="digits in" id="joinDigits"><span></span><span></span><span></span><span></span>
+          <input id="codeIn" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-label="4桁のコード"></label>
+        <p class="ost" id="joinSt"><i class="pulse"></i><span>4桁の数字を入れてください</span></p>
+        <button class="lnk back" id="joinBack">もどる</button>
       </div>
       <div class="view" id="vColor" hidden>
         <h2>チップの色</h2>
@@ -393,7 +449,7 @@ function openPick(deferred) {
 }
 function showPickOv() {
   $('pickOv').classList.remove('cmode');
-  $('vMain').hidden = false; $('vColor').hidden = true;
+  ['vColor', 'vOnline', 'vHost', 'vJoin'].forEach(id => $(id).hidden = true); $('vMain').hidden = false;
   const ov = $('pickOv'); ov.classList.remove('leaving'); ov.hidden = true; void ov.offsetWidth; ov.hidden = false;
 }
 function startWith(p) {
@@ -437,8 +493,9 @@ function roll() {
   tick();
 }
 
-function drop(c) {
+function drop(c, remote) {
   if (over || switching || c < 0 || c >= COLS) return;
+  if (online && !remote) { if (turn !== me) return; send({t:'move', c}); }
   const r = heightOf(c); if (r < 0) return;
   armed = false;
   grid[c][r] = turn;
@@ -503,7 +560,7 @@ function updateUI() {
   $('mute').style.display = muted ? '' : 'none';
   if (sel >= 0 && heightOf(sel) < 0) { const cand = [...Array(COLS).keys()].filter(c => heightOf(c) >= 0).sort((a, b) => Math.abs(a - sel) - Math.abs(b - sel)); sel = cand.length ? cand[0] : -1; }
   tris.forEach((t, c) => {
-    t.visible = !over && !choosing && heightOf(c) >= 0;
+    t.visible = !over && !choosing && heightOf(c) >= 0 && !(online && turn !== me);
     t.userData.target = new THREE.Color(armed && c === sel ? '#ffffff' : CSS[turn]);
     t.scale.setScalar(armed && c === sel ? 1.35 : 1);
   });
@@ -675,6 +732,7 @@ canvas.addEventListener('pointerdown', e => {
   wakeAudio();
   if (choosing) return;
   if (switching && !over) return;
+  if (online && !over && turn !== me) return;
   if (over) { if (winChips.length || winner < 0) { if ($('winOv').hidden && !pending) showWin(winner); } return; }
   ptrType = e.pointerType;
   const c = colAt(e);
@@ -683,20 +741,114 @@ canvas.addEventListener('pointerdown', e => {
   else { sel = c; armed = true; tick(); updateUI(); }
 });
 canvas.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse' || over || choosing || switching) return;
+  if (e.pointerType !== 'mouse' || over || choosing || switching || (online && turn !== me)) return;
   ptrType = 'mouse';
   const c = colAt(e); if (c >= 0 && (c !== sel || !armed) && heightOf(c) >= 0) { sel = c; armed = true; updateUI(); }
 });
 function tick() { if (!muted && actx) bar(784, actx.currentTime, .07); }
 document.addEventListener('gesturestart', e => e.preventDefault());
 addEventListener('keydown', e => {
-  if (over || choosing || switching) return;
+  if (over || choosing || switching || (online && turn !== me)) return;
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { const d = e.key === 'ArrowLeft' ? -1 : 1; for (let c = sel + d; c >= 0 && c < COLS; c += d) if (heightOf(c) >= 0) { sel = c; break; } armed = true; updateUI(); }
   else if (e.key === 'Enter' || e.key === 'ArrowDown') { wakeAudio(); drop(sel); }
   else { const n = +e.key; if (n >= 1 && n <= 7) { wakeAudio(); sel = n - 1; drop(n - 1); } }
 });
 
-const replay = () => openPick();
+function replay() { if (online) { $('askOv').hidden = true; $('winOv').hidden = true; if (isHost) newRound(); else { send({t:'again'}); notice('相手を待っています'); } } else openPick(); }
+
+/* ===== オンライン対戦：4桁のコードで端末どうしを直接つなぐ ===== */
+let online = false, isHost = false, me = 0, peer = null, conn = null;
+const views = ['vMain', 'vColor', 'vOnline', 'vHost', 'vJoin'];
+const showView = v => views.forEach(id => $(id).hidden = id !== v);
+let noticeT = null;
+function notice(msg, ms) { const n = $('notice'); n.textContent = msg; n.classList.add('on'); clearTimeout(noticeT); noticeT = setTimeout(() => n.classList.remove('on'), ms || 2200); }
+function loadPeer() {
+  return new Promise((ok, ng) => {
+    if (window.Peer) return ok();
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+    sc.onload = () => window.Peer ? ok() : ng(); sc.onerror = ng; document.head.appendChild(sc);
+  });
+}
+function send(m) { try { if (conn && conn.open) conn.send(m); } catch (e) {} }
+function closeNet() { try { conn && conn.close(); } catch (e) {} try { peer && peer.destroy(); } catch (e) {} conn = null; peer = null; }
+function leaveOnline(msg) {
+  const was = online; online = false; isHost = false; document.body.classList.remove('online'); closeNet();
+  if (msg) notice(msg, 3000);
+  if (was) openPick();
+}
+function wire(c) {
+  conn = c;
+  c.on('data', onData);
+  c.on('close', () => { if (online) leaveOnline('相手との接続が切れました'); });
+  c.on('error', () => { if (online) leaveOnline('相手との接続が切れました'); });
+}
+function beginOnline(host) {
+  online = true; isHost = host; me = host ? 0 : 1;
+  document.body.classList.add('online'); placeYou();
+  if (!muted && actx) { const t = actx.currentTime; bar(1047, t, .18); bar(1568, t + .1, .2); }
+}
+function newRound() {
+  const p = Math.random() < .5 ? 0 : 1;
+  send({t:'start', p, colors:colorIdx});
+  startWith(p);
+}
+function onData(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'hello' && isHost) { beginOnline(true); newRound(); }
+  else if (m.t === 'start' && !isHost && (m.p === 0 || m.p === 1)) {
+    if (!online) beginOnline(false);
+    if (Array.isArray(m.colors) && m.colors.length === 2 && m.colors[0] !== m.colors[1] && m.colors.every(i => PALETTE[i])) { colorIdx = [-1, -1]; setColor(0, m.colors[0], true); setColor(1, m.colors[1], true); }
+    $('winOv').hidden = true; $('askOv').hidden = true;
+    startWith(m.p);
+  }
+  else if (m.t === 'move' && Number.isInteger(m.c) && m.c >= 0 && m.c < COLS) {
+    const tryDrop = () => { if (switching || anims.length) return setTimeout(tryDrop, 80); if (!over && turn !== me) drop(m.c, true); };
+    tryDrop();
+  }
+  else if (m.t === 'again' && isHost) newRound();
+}
+function status(id, msg, kind) { const el = $(id); el.className = 'ost' + (kind ? ' ' + kind : ''); el.querySelector('span').textContent = msg; }
+function showDigits(id, str) { $(id).querySelectorAll('span').forEach((sp, i) => { sp.textContent = str[i] || ''; sp.classList.toggle('cur', id === 'joinDigits' && i === Math.min(str.length, 3)); }); }
+async function host() {
+  showView('vHost'); showDigits('hostCode', ''); status('hostSt', '準備しています', 'wait');
+  try { await loadPeer(); } catch (e) { status('hostSt', '通信の準備ができませんでした', 'ng'); return; }
+  const tryId = n => {
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    peer = new Peer('glass4four-' + code);
+    peer.on('open', () => { showDigits('hostCode', code); status('hostSt', '相手の参加を待っています', 'wait'); });
+    peer.on('connection', c => { if (conn) { c.close(); return; } status('hostSt', 'つながりました', 'ok'); c.on('open', () => wire(c)); });
+    peer.on('error', e => { if (e && e.type === 'unavailable-id' && n < 5) { peer.destroy(); tryId(n + 1); } else if (!online) status('hostSt', '通信できませんでした', 'ng'); });
+  };
+  tryId(0);
+}
+async function join() {
+  const code = ($('codeIn').value || '').replace(/[^0-9]/g, '');
+  if (code.length !== 4) { status('joinSt', '4桁の数字を入れてください'); return; }
+  status('joinSt', 'つないでいます', 'wait'); $('codeIn').blur();
+  try { await loadPeer(); } catch (e) { status('joinSt', '通信の準備ができませんでした', 'ng'); return; }
+  closeNet();
+  peer = new Peer();
+  const fail = msg => { status('joinSt', msg, 'ng'); closeNet(); };
+  const to = setTimeout(() => { if (!online) fail('つながりませんでした'); }, 12000);
+  peer.on('open', () => {
+    const c = peer.connect('glass4four-' + code, {reliable:true});
+    c.on('open', () => { clearTimeout(to); wire(c); status('joinSt', 'つながりました', 'ok'); send({t:'hello'}); });
+  });
+  peer.on('error', e => { clearTimeout(to); if (!online) fail(e && e.type === 'peer-unavailable' ? 'その部屋は見つかりませんでした' : 'つながりませんでした'); });
+}
+function placeYou() {
+  const px = Math.min(70, SH * .17), py = Math.min(66, SH * .16), D = Math.min(84, SH * .19);
+  const sx = me === 0 ? px + (rot ? 20 : 8) : SW - px - 8, el = $('youTag');
+  el.style.left = sx + 'px'; el.style.top = (py + D / 2 + 8) + 'px';
+}
+$('onlineBtn').onclick = () => { wakeAudio(); if (rolling) return; showView('vOnline'); };
+$('onBack').onclick = () => showView('vMain');
+$('hostBtn').onclick = () => { wakeAudio(); host(); };
+$('joinBtn').onclick = () => { wakeAudio(); showView('vJoin'); status('joinSt', '4桁の数字を入れてください'); $('codeIn').value = ''; showDigits('joinDigits', ''); setTimeout(() => $('codeIn').focus(), 60); };
+$('hostBack').onclick = () => { closeNet(); showView('vOnline'); };
+$('joinBack').onclick = () => { closeNet(); showView('vOnline'); };
+$('codeIn').addEventListener('input', e => { e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4); showDigits('joinDigits', e.target.value); if (e.target.value.length === 4) join(); else status('joinSt', '4桁の数字を入れてください'); });
+$('codeIn').addEventListener('keydown', e => e.stopPropagation());
 /* チップの色 */
 const W = new THREE.Color(0xffffff);
 function setColor(p, i, quiet) {
@@ -772,6 +924,7 @@ function placeCorners() {
 }
 function sizePick() {
   placeCorners();
+  if (online) placeYou();
   if (!pickR) return;
   pickR.setSize(SW, SH, false);
   pickCam.aspect = SW / SH; pickCam.position.set(0, 0, (SH / 2) / Math.tan(THREE.MathUtils.degToRad(pickCam.fov) / 2));
@@ -806,7 +959,7 @@ function renderPick(dt) {
 }
 $('gR').onclick = () => { wakeAudio(); roll(); };
 $('snd').onclick = () => { muted = !muted; wakeAudio(); save(); updateUI(); landSound(1); };
-$('restart').onclick = () => { if (moves.length && !over) $('askOv').hidden = false; else replay(); };
+$('restart').onclick = () => { if (choosing) return; if (moves.length && !over) $('askOv').hidden = false; else replay(); };
 $('keep').onclick = () => { $('askOv').hidden = true; };
 $('doRestart').onclick = replay;
 $('again2').onclick = replay;
@@ -834,7 +987,7 @@ function loop(now) {
   animMarks(now, dt);
   stepHero(now);
   stepSparks(dt, now);
-  const gShow = !over && !choosing && !switching && sel >= 0 && anims.length === 0;
+  const gShow = !over && !choosing && !switching && sel >= 0 && anims.length === 0 && !(online && turn !== me);
   ghosts.forEach((g, p) => {
     const want = gShow && p === turn, u = g.userData;
     u.k = Math.max(0, Math.min(1, (u.k || 0) + (want ? dt * 4 : -dt * 8)));
