@@ -1,5 +1,5 @@
 /* 4つ並べ：オフラインでも遊べるようにするための仕組み（サービスワーカー） */
-const CACHE = 'glass4-v1.4.3';
+const CACHE = 'glass4-v1.4.6';
 const CORE = ['./', './index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './favicon.png'];
 const CDN = [
   'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
