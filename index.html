@@ -449,8 +449,7 @@ function updateUI() {
     t.material.color.set(armed && c === sel ? '#ffffff' : CSS[turn]);
     t.scale.setScalar(armed && c === sel ? 1.35 : 1);
   });
-  const show = !over && !choosing && armed && sel >= 0;
-  ghosts.forEach((g, p) => { g.visible = show && p === turn; if (sel >= 0) g.position.x = cellPos(sel, 0).x; });
+  ghosts.forEach(g => { if (sel >= 0) g.position.x = cellPos(sel, 0).x; });
   lane.material.color.set(CSS[turn]);
   if (sel >= 0) lane.position.x = cellPos(sel, 0).x;
 
@@ -729,7 +728,15 @@ function loop(now) {
   animMarks(now, dt);
   stepHero(now);
   stepSparks(dt, now);
-  ghosts.forEach(g => { if (g.visible) g.position.y = PH + 1.0 + (still ? 0 : Math.sin(now / 320) * .07); });
+  const gShow = !over && !choosing && sel >= 0 && anims.length === 0;
+  ghosts.forEach((g, p) => {
+    const want = gShow && p === turn, u = g.userData;
+    u.k = Math.max(0, Math.min(1, (u.k || 0) + (want ? dt * 4 : -dt * 8)));
+    g.visible = u.k > 0;
+    const e = 1 - Math.pow(1 - u.k, 3);
+    g.scale.setScalar(.6 + .4 * e);
+    g.position.y = PH + 1.0 + (1 - e) * .5 + (still ? 0 : Math.sin(now / 320) * .07);
+  });
   lane.material.opacity += ((armed && !over && !choosing ? .16 + .05 * Math.sin(now / 300) : 0) - lane.material.opacity) * .2;
   const showR = armed && !over && !choosing && sel >= 0;
   ripples.forEach((r, i) => {
